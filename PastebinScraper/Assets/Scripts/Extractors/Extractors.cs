@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text.RegularExpressions;
-using System.Threading;
-using UnityEngine;
-
-//public class Extractors
+﻿//public class Extractors
 //{
 //    const string REGEX_EMAIL = @"[A-Za-z0-9_\-\+]+@\S+([a-zA-Z]*\.?){1,10}";
 //    const string REGEX_COMBOLIST_A = @"[A-Za-z0-9_\-\+]+@\S+([a-zA-Z]*\.?){1,}:(.{6,24})";

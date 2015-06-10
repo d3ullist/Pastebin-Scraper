@@ -14,8 +14,8 @@ namespace Extractors
         private const string REGEX_EMAIL = @"[A-Za-z0-9_\-\+]+@\S+([a-zA-Z]*\.?){1,10}";
 
         private string FilesLocation;
-        private bool CleanDuplicates;
         private string SaveLocation;
+        private bool CleanDuplicates;
         private bool terminateRuntime;
 
         private string[] filePaths;
@@ -42,8 +42,8 @@ namespace Extractors
         {
             terminateRuntime = false;
 
-
-            filePaths = Directory.GetFiles(FilesLocation, "*.txt", SearchOption.TopDirectoryOnly);
+            if (filePaths == null)
+                filePaths = Directory.GetFiles(FilesLocation, "*.txt", SearchOption.TopDirectoryOnly);
 
             if (filePaths.Length <= 0)
                 throw new NullReferenceException("No files found at path");
@@ -89,36 +89,38 @@ namespace Extractors
         {
             Regex myRegex = new Regex(REGEX_EMAIL, RegexOptions.None);
 
-            foreach (string file in filePaths)
+            for (int i = 0; i < filePaths.Length; i++)
             {
                 if (terminateRuntime)
                 {
-                    UnityEngine.Debug.Log("Terminated early");
+                    UnityEngine.Debug.Log("Terminated early at " + i + " of " + filePaths.Length);
                     break;
                 }
 
-                string lines = File.ReadAllText(file);
+                string[] lines = File.ReadAllLines(filePaths[i]);
 
-                if (!string.IsNullOrEmpty(lines))
+                if (lines.Length > 0)
                 {
                     HashSet<string> matches = new HashSet<string>();
 
-                    foreach (Match match in myRegex.Matches(lines))
+                    for (int e = 0; e < lines.Length; e++)
                     {
-                        if (terminateRuntime)
+                        foreach (Match match in myRegex.Matches(lines[e]))
                         {
-                            UnityEngine.Debug.Log("Terminated early");
-                            break;
+                            matches.Add(match.Value);
                         }
-                        matches.Add(match.Value);
                     }
+                    UnityEngine.Debug.Log("Going to sleep");
                     Thread.Sleep(1000);
-                    UnityEngine.Debug.Log(matches.Count + " Hits inside file " + file);
-
-                    //TODO: Implement logic to save emails to file
+                    UnityEngine.Debug.Log("Awake again");
                 }
+                UnityEngine.Debug.Log("Going to sleep in between files");
                 Thread.Sleep(1000);
+                UnityEngine.Debug.Log("Awake again for the next file");
             }
+            UnityEngine.Debug.Log("Going to sleep at the end");
+            Thread.Sleep(1000);
+            UnityEngine.Debug.Log("Awake again before ending");
         }
         private delegate void ExtractWorkerDelegate();
 

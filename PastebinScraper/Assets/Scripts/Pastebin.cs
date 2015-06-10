@@ -8,6 +8,10 @@ using UnityEngine;
 
 namespace Scraper
 {
+//    "Pastie.org",
+//"Pastebin.com",
+// "Codepad.org",
+//"Slexy.org"
     public class Pastebin
     {
         private const string PASTEBIN_ARCHIVE = "http://pastebin.com/archive";

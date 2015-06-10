@@ -17,40 +17,17 @@ public partial class Main : MonoBehaviour
 
     private Pastebin pastebin = new Pastebin();
     private Email ee = new Email();
-    private Statistics stats = new Statistics();
+    public static Statistics stats = new Statistics();
     private FileCleaner fc = new FileCleaner();
 
 	IEnumerator Start () 
     {
-        Debug.Log("Main Loop running");
+        Debug.Log("Application awake, starting co-Update");
+        StartCoroutine(CoUpdate());
+
         while (Application.isPlaying)
         {
             if (IsScrapingPastebin) pastebin.Scrape();
-
-            if (!fc.IsBusy && IsDeletingSmallFiles)
-            {
-                if (fc.terminateWorker) fc.terminateWorker = false;
-
-                Debug.Log("Attempt to start deleting of small files");
-                fc.RemoveUnderAsync(AmountOfChars, pastebin.SaveLocation);
-            }
-            else if (fc.IsBusy && !IsDeletingSmallFiles)
-            {
-                Debug.Log("Reported running of deleting small files, terminating service");
-                fc.terminateWorker = true;
-            }
-
-            if (!ee.IsBusy && IsExtractingEmails)
-            {
-                Debug.Log("Attempt to start extraction of emails");
-                ee.ExtractAsync(pastebin.SaveLocation, pastebin.SaveLocation, true);
-            }
-            else if (ee.IsBusy && !IsExtractingEmails)
-            {
-                Debug.Log("Reported running of email extractor, terminating now.");
-                ee.Cancel();
-                Debug.Log("Terminated email extractor");
-            }
 
             // Setting next estimate scrape time, and wait for 5 minutes
             int index = DateTime.Now.AddMinutes(5).TimeOfDay.ToString().IndexOf(".");
@@ -59,7 +36,49 @@ public partial class Main : MonoBehaviour
             yield return new WaitForSeconds(300);
         }
 	}
-
+    IEnumerator CoUpdate()
+    {
+        Debug.Log("Co-Update is running");
+        while (Application.isPlaying)
+        {
+            #region EmailExtraction
+            if (IsExtractingEmails && !ee.IsBusy)
+            {
+                Debug.Log("Starting up a email extraction Unit");
+                ee.ExtractAsync(pastebin.SaveLocation, pastebin.SaveLocation, true);
+                Debug.Log("Email Extraction Now Running");
+            }
+            else if (!IsExtractingEmails && ee.IsBusy)
+            {
+                Debug.Log("Terminating email extraction Unit");
+                ee.Cancel();
+                while (ee.IsBusy) {yield return new WaitForSeconds(1);}
+                Debug.Log("Terminated email extraction Unit");
+            }
+            #endregion
+            #region SmallFileCleaner
+            if (IsDeletingSmallFiles && !fc.IsBusy && !fc.completed)
+            {
+                Debug.Log("Starting up a small file cleaner unit");
+                fc.RemoveUnderAsync(10, pastebin.SaveLocation);
+                Debug.Log("Started up a small file cleaner unit");
+            }
+            else if (!IsDeletingSmallFiles && fc.IsBusy)
+            {
+                Debug.Log("Terminating small file cleaner unit");
+                fc.terminateWorker = true;
+                while (fc.IsBusy) { yield return new WaitForSeconds(1); }
+                Debug.Log("Terminated small file cleaner unit");
+            }
+            else if (fc.completed)
+            {
+                fc.completed = false;
+                Toggle(GameObject.Find("IDSF"));
+            }
+            #endregion
+            yield return new WaitForSeconds(1);
+        }
+    }
     private void OnApplicationQuit()
     {
         if (fc.IsBusy)

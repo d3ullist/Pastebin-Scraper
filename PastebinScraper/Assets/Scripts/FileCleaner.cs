@@ -13,6 +13,8 @@ public class FileCleaner
         get { return removeUnderIsRunning; }
     }
 
+    public bool completed; 
+
     public void RemoveUnderAsync(int charAmount, string folder)
     {
         if (TotalFiles(folder) == 0)
@@ -40,7 +42,7 @@ public class FileCleaner
     {
         // Assuming encoding takes up 20 bytes, and a char exists of 2 bytes.
         int byteLimit = 20 + charAmount * 2;
-
+        Debug.Log(FileLocations.Length);
         foreach (string file in FileLocations)
         {
             if (terminateWorker)
@@ -55,12 +57,16 @@ public class FileCleaner
             if (size <= byteLimit)
             {
                 Debug.Log("File: " + file + " Contained less then " + byteLimit + " Bytes Marked for deletion");
+
+                try { File.Delete(fi.FullName); Main.stats.SmallFilesDeleted++; }
+                catch(Exception e) {Debug.Log("Failed to delete small file!!!!! " + e);}
+
                 continue;
             }
-
             Debug.Log("CLEARED");
-            Thread.Sleep(1000);
+            Thread.Sleep(1);
         }
+        completed = true;
     }
     private delegate void RemoveUnderWorkerDelegate(int charAmount);
     private void RemoveUnderCompletedCallback(IAsyncResult ar)
@@ -110,19 +116,14 @@ public class FileCleaner
     {
         if (IsBusy)
         {
-            Debug.LogWarning("Application exiting, cleaning up Async thread");
+            Debug.LogWarning("Application exiting, cleaning up Async filecleaner thread");
             terminateWorker = true;
             while (IsBusy)
             {
                 Thread.Sleep(1000);
             }
 
-            Debug.Log("Terminated thread");
-
+            Debug.Log("Terminated filecleaner thread");
         }
-        else
-            Debug.Log("No file cleaner running, terminating run time");
-
     }
-
 }
