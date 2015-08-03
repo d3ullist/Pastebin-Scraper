@@ -128,7 +128,7 @@ namespace FileManager
                     {
                         File.Delete(file);
                     }
-                    catch (Exception e)
+                    catch
                     {
                         Console.WriteLine("FAIL: " + file);
                     }

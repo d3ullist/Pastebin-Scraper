@@ -11,7 +11,6 @@ namespace Scrapers
         const String PastebinArchiveLink = "http://pastebin.com/archive";
 
         const int Cooldown = 90;
-        const int MaxPerCooldown = 75;
 
         HashSet<string> exclusionList = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "tools", "login", "archive", "trends", "signup", "alerts", "settings", "profile", "signup", "privacy", "contact", "languages" };
         HashSet<string> previous = new HashSet<string>();
@@ -68,19 +67,36 @@ namespace Scrapers
 
         public void Scrape()
         {
-            foreach (LinkItem LI in LinkFinder.Find(PastebinArchive()))
+            try
             {
-                string sHref = StripLinkItem(LI.Href);
+                foreach (LinkItem LI in LinkFinder.Find(PastebinArchive()))
+                {
+                    string sHref = StripLinkItem(LI.Href);
 
-                // If the stripd down link is excluded, or irrelevant go to the next.
-                if (string.IsNullOrEmpty(sHref)) continue;
+                    // If the stripd down link is excluded, or irrelevant go to the next.
+                    if (string.IsNullOrEmpty(sHref) || exclusionList.Contains(sHref)) continue;
 
-                // If we did not previously handle this, add it to our current.
-                if (previous.Add(sHref)) current.Add(sHref);
-                else faulty.Add(sHref);
+                    // If we did not previously handle this, add it to our current.
+                    if (previous.Add(sHref))
+                    {
+                        current.Add(sHref);
+                        Stats.ScraperStats.TotalScraped++;
+                    }
+                    else
+                    {
+                        faulty.Add(sHref);
+                        Stats.ScraperStats.TotalFaulty++;
+                    }
+                }
+                // Exclude the 8 faulty caused by the 8 featured files
+                Stats.ScraperStats.TotalFaulty -= 8;
+
+                DownloadPastes(ref current);
             }
-
-            DownloadPastes(ref current);
+            catch
+            {
+                Console.WriteLine("Could not download archive, due to a time out");
+            }
         }
 
         public void DownloadPastes(ref HashSet<string> IDs)
@@ -96,11 +112,14 @@ namespace Scrapers
                     {
                         // TODO: Allow variable file naming (titles maybe?)
                         WC.DownloadFileAsync(downloadLink, SaveLocation + @"\" + ID + ".txt");
+                        Stats.ScraperStats.TotalDownloaded++;
+                        Stats.ScraperStats.LastScrapeAmount++;
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
                         faulty.Add(ID);
+                        Stats.ScraperStats.TotalFaulty++;
                     }
                 }
             }

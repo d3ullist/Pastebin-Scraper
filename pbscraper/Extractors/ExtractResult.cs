@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Extractors
@@ -37,34 +34,48 @@ namespace Extractors
 
     }
 
-    public class Extract
+    public static  class Extract
     {
-        public static void Save(ExtractResult ER, string FileSpec)
+        public static List<ExtractResult> EmailResults = new List<ExtractResult>();
+        public static List<ExtractResult> ComboResults = new List<ExtractResult>();
+
+        public static void SaveStats()
         {
-            XmlSerializer xs = new XmlSerializer(typeof(ExtractResult));
-            TextWriter tw = new StreamWriter(@"C:\Users\D3ullist\Desktop\Pastes\tester.xml");
-            xs.Serialize(tw, ER);
-        }
-        public static void Load()
-        {
-            //using (var sr = new StreamReader(@"c:\temp\garage.xml"))
+            //try
             //{
-            //    garage = (theGarage)xs.Deserialize(sr);
+            //    XmlSerializer serializer = new XmlSerializer(typeof(ScrapperStatistics));
+            //    using (TextWriter writer = new StreamWriter(string.Format(@"{0}\Output\stats.xml", Pastebin.SaveLocation)))
+            //    {
+            //        serializer.Serialize(writer, Stats.ScraperStats);
+            //    }
+            //}
+            //catch
+            //{
+            //    throw;
             //}
         }
 
-        public void Test()
-        {
-            ExtractResult ee = new ExtractResult(
-                "Lore",
-                "DOLAS",
-                2819,
-                new List<string>() { "asdf","asdfasdf","asdfasd"});
-            //ExtractResult ea = new ExtractResult("Lore", "ipsum", 2819);
+        //public static void LoadStats()
+        //{
+        //    if (!File.Exists(Pastebin.SaveLocation + @"\Output\stats.xml"))
+        //    {
+        //        Console.WriteLine("No Data to load (stats)");
+        //        return;
+        //    }
 
-
-            Extract.Save(ee, "Test.xml");
-            //Extract.Save(ea, "TestTwo.xml");
-        }
+        //    XmlSerializer serializer = new XmlSerializer(typeof(ScrapperStatistics));
+        //    try
+        //    {
+        //        using (StreamReader stream = new StreamReader(string.Format(@"{0}\Output\stats.xml", Pastebin.SaveLocation)))
+        //        {
+        //            ScraperStats = (ScrapperStatistics)serializer.Deserialize(stream);
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        Console.WriteLine("Failed to download data (stats)");
+        //        return;
+        //    }
+        //}
     }
 }

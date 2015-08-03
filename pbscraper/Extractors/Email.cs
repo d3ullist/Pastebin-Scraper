@@ -34,7 +34,7 @@ namespace Extractors
                 if (TotalFiles(Scrapers.Pastebin.SaveLocation) == 0) return;
 
                 // Create a worker and a call back
-                MergeWorkerDelegate worker = new MergeWorkerDelegate(MergeWorker);
+                MergeWorkerDelegate worker = new MergeWorkerDelegate(ExtractEmailWorker);
                 AsyncCallback completedCallback = new AsyncCallback(MergeCompletedCallBack);
 
                 // Lock the operation and fire up the worker
@@ -50,8 +50,8 @@ namespace Extractors
             }
         }
 
-        List<ExtractResult> FinalResults = new List<ExtractResult>();
-        private void MergeWorker()
+        //List<ExtractResult> FinalResults = new List<ExtractResult>();
+        private void ExtractEmailWorker()
         {
             Regex myRegex = new Regex(REGEX_EMAIL, RegexOptions.None);
             while (!isTerminating)
@@ -85,6 +85,9 @@ namespace Extractors
                         Console.WriteLine("Failed to read file: " + file);
                         Console.WriteLine(ex);
                     }
+
+                    if(ER.emails.Count > 0)
+                        Extract.EmailResults.Add(ER);
                 }
             }
         }
@@ -113,7 +116,6 @@ namespace Extractors
                 MergeCompleted(this, e);
             Console.WriteLine("Succes");
         }
-
 
         //static byte[] GetBytes(string str)
         //{
