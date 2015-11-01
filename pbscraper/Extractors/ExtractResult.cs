@@ -1,6 +1,7 @@
 ﻿using Scrapers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -34,7 +35,7 @@ namespace Extractors
 
     }
 
-    public static  class Extract
+    public static class Extract
     {
         public static List<ExtractResult> EmailResults = new List<ExtractResult>();
         public static List<ExtractResult> ComboResults = new List<ExtractResult>();
@@ -53,6 +54,15 @@ namespace Extractors
             //{
             //    throw;
             //}
+        }
+
+        public static bool CheckExistanceEmail(string fileName)
+        {
+            foreach (ExtractResult ER in EmailResults)
+            {
+                if (ER.fileName == fileName) return true;
+            }
+            return false;
         }
 
         //public static void LoadStats()

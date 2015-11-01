@@ -29,6 +29,7 @@ public static class Stats
         try
         {
             XmlSerializer serializer = new XmlSerializer(typeof(ScrapperStatistics));
+            // TODO: Create folder if does not exist
             using(TextWriter writer = new StreamWriter(string.Format(@"{0}\Output\stats.xml", Pastebin.SaveLocation)))
             {
                 serializer.Serialize(writer, Stats.ScraperStats);
@@ -36,7 +37,7 @@ public static class Stats
         }
         catch
         {
-            throw;
+            return;
         }
     }
 

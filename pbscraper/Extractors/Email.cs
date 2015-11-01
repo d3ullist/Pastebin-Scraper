@@ -50,7 +50,6 @@ namespace Extractors
             }
         }
 
-        //List<ExtractResult> FinalResults = new List<ExtractResult>();
         private void ExtractEmailWorker()
         {
             Regex myRegex = new Regex(REGEX_EMAIL, RegexOptions.None);
@@ -86,7 +85,7 @@ namespace Extractors
                         Console.WriteLine(ex);
                     }
 
-                    if(ER.emails.Count > 0)
+                    if(ER.emails.Count > 0 && !Extract.CheckExistanceEmail(ER.fileName))
                         Extract.EmailResults.Add(ER);
                 }
             }
